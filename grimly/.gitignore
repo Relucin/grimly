@@ -8,5 +8,5 @@
 .clang*
 .nfs*
 .imdone
-calc
+grimly
 *.pdf

@@ -1,10 +1,10 @@
-INCLUDES	+= bistromatic bistro_list operators to_be_added shunting_yard
+INCLUDES	+= grimly
 INCLUDES	:= $(addprefix src/, $(INCLUDES))
 INCLUDES	:= $(addsuffix .o, $(INCLUDES))
 CC			:= gcc
 FLAGS		+= -Wall -Wextra -Werror -Ilibft/includes/ -Iincludes/
 FLAGS		+= -g
-NAME		:= calc
+NAME		:= grimly
 
 .PHONY: clean fclean re all
 
