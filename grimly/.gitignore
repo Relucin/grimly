@@ -1,0 +1,12 @@
+*.sh
+.DS*
+._.*
+.
+*.o
+*.a
+.tag*
+.clang*
+.nfs*
+.imdone
+calc
+*.pdf
