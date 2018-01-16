@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 09:49:57 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/15 21:13:17 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/16 13:42:21 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,36 +20,23 @@
 #include <ftstdio.h>
 #include <grimly.h>
 
-typedef struct	s_point
-{
-	int			curx;
-	int			cury;
-	int			x;
-	int			y;
-	char		visited;
-}				t_point;
-
-typedef struct	s_grim
-{
-	int			l;
-	int			c;
-	char		full;
-	char		empty;
-	char		path;
-	char		enter;
-	char		end;
-	char		*m;
-	char		**map;
-	t_point		start;
-	t_point		stop;
-	t_point		*p;
-	t_point		**points;
-}				t_grim;
-
 /*
 ** TODO Consider multiple stops.
 ** ft_printf("%d %d %d\n", line, grim->points[2][2].x, grim->points[2][2].y);
 */
+
+void	set_points(t_grim *grim)
+{
+	int	loc;
+
+	loc = 0;
+	while (loc < grim->l * grim->c)
+	{
+		grim->p[loc].x = -1;
+		grim->p[loc].y = -1;
+		grim->p[loc++].visited = -1;
+	}
+}
 
 void	build_map(t_grim *grim)
 {
@@ -58,16 +45,16 @@ void	build_map(t_grim *grim)
 
 	line = 0;
 	grim->p = malloc(sizeof(t_point) * grim->l * grim->c);
-	ft_memset(grim->p, -1, sizeof(t_point) * grim->l * grim->c);
-	grim->map = malloc(sizeof(char *) * grim->l + 1);
-	grim->points = malloc(sizeof(t_point *) * grim->l + 1);
+	grim->points = malloc(sizeof(t_point *) * grim->l);
+	grim->map = malloc(sizeof(char *) * grim->l);
+	set_points(grim);
 	while (line < grim->l)
 	{
 		if (grim->m[line * (grim->c + 1) + grim->c] != '\n')
 			exit(0);
 		grim->m[line * (grim->c + 1) + grim->c] = '\0';
 		grim->map[line] = grim->m + (line * (grim->c + 1));
-		grim->points[line] = grim->p + (line * (grim->c + 1));
+		grim->points[line] = grim->p + (line * grim->c);
 		if ((loc = ft_strchr(grim->map[line], grim->enter)))
 		{
 			grim->start.x = (int)(loc - grim->map[line]);
@@ -80,10 +67,6 @@ void	build_map(t_grim *grim)
 		}
 		++line;
 	}
-	ft_printf("%d\n", line);
-	ft_printf("%d\n", grim->points[line - 1][2].x);
-	ft_memset(grim->points[line - 1], -1, sizeof(t_point) * grim->c);
-	ft_printf("(1)");
 }
 
 /*
