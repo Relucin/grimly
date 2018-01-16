@@ -1,4 +1,4 @@
-INCLUDES	+= grimly
+INCLUDES	+= grimly queue
 INCLUDES	:= $(addprefix src/, $(INCLUDES))
 INCLUDES	:= $(addsuffix .o, $(INCLUDES))
 CC			:= gcc
