@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 09:49:57 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/16 17:32:13 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/16 17:42:22 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ void	build_map(t_grim *grim)
 	{
 		if (grim->m[line * (grim->c + 1) + grim->c] != '\n')
 			exit(0);
+		grim->m[line * (grim->c + 1) + grim->c] = '\0';
 		grim->map[line] = grim->m + (line * (grim->c + 1));
 		if ((loc = ft_strchr(grim->map[line], grim->enter)))
 		{
@@ -62,6 +63,7 @@ void	build_map(t_grim *grim)
 			grim->stop.x = (int)(loc - grim->map[line]);
 			grim->stop.y = line;
 		}
+		grim->m[line * (grim->c + 1) + grim->c] = '\n';
 		++line;
 	}
 }
