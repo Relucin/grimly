@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 09:49:57 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/16 18:09:44 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/16 21:55:28 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,32 +25,47 @@
 ** ft_printf("%d %d %d\n", line, grim->points[2][2].x, grim->points[2][2].y);
 */
 
+void	verify_map(t_grim *grim)
+{
+	int		mapsize;
+	int		line;
+
+	mapsize = grim->l * (grim->c + 1) - 1;
+	line = grim->l - 1;
+	while (mapsize >= 0)
+	{
+		if (grim->m[mapsize] == grim->enter)
+		{
+			grim->start.x = mapsize % (grim->c + 1);
+			grim->start.y = mapsize / (grim->c + 1);
+		}
+		else if (grim->m[mapsize] == grim->end)
+		{
+			grim->stop.x = mapsize % (grim->c + 1);
+			grim->stop.y = mapsize / (grim->c + 1);
+		}
+		else if (mapsize == line * (grim->c + 1) + grim->c &&
+				grim->m[line * (grim->c + 1) + grim->c] == '\n')
+			--line;
+		else if (grim->m[mapsize] != grim->empty &&
+				grim->m[mapsize] != grim->full)
+			exit(0);
+		--mapsize;
+	}
+}
+
 void	build_map(t_grim *grim)
 {
 	int		line;
-	char	*loc;
 
 	line = 0;
 	grim->p = malloc(sizeof(char) * grim->l * grim->c);
 	grim->map = malloc(sizeof(char *) * grim->l);
 	ft_memset(grim->p, -1, sizeof(char) * grim->l * grim->c);
+	verify_map(grim);
 	while (line < grim->l)
 	{
-		if (grim->m[line * (grim->c + 1) + grim->c] != '\n')
-			exit(0);
-		grim->m[line * (grim->c + 1) + grim->c] = '\0';
 		grim->map[line] = grim->m + (line * (grim->c + 1));
-		if ((loc = ft_strchr(grim->map[line], grim->enter)))
-		{
-			grim->start.x = (int)(loc - grim->map[line]);
-			grim->start.y = line;
-		}
-		if ((loc = ft_strchr(grim->map[line], grim->end)))
-		{
-			grim->stop.x = (int)(loc - grim->map[line]);
-			grim->stop.y = line;
-		}
-		grim->m[line * (grim->c + 1) + grim->c] = '\n';
 		++line;
 	}
 }
@@ -81,9 +96,10 @@ void	parse_map(t_grim *grim, int fd)
 	grim->c = ft_atoi(loc);
 	if (!((grim->l = ft_atoi(str)) * grim->c))
 		exit(0);
-	grim->m = malloc(grim->l * (grim->c + 1));
+	grim->m = malloc(grim->l * (grim->c + 1) + 1);
 	if (read(fd, grim->m, grim->l * (grim->c + 1)) != grim->l * (grim->c + 1))
 		exit(0);
+	grim->m[grim->l * (grim->c + 1)] = '\0';
 	build_map(grim);
 }
 
@@ -99,28 +115,17 @@ void	print_map(t_grim *grim)
 	{
 		revloc.x = (size_t)(rev - grim->p) % grim->c;
 		revloc.y = (size_t)(rev - grim->p) / grim->c;
+		if (*rev == 1)
+			rev = grim->p + (--revloc.y) * grim->c + revloc.x;
+		else if (*rev == 2)
+			rev = grim->p + revloc.y * grim->c + --revloc.x;
+		else if (*rev == 3)
+			rev = grim->p + revloc.y * grim->c + ++revloc.x;
+		else if (*rev == 4)
+			rev = grim->p + ++revloc.y * grim->c + revloc.x;
 		if (!*rev || *rev == -1)
 			break ;
-		else if (*rev == 1)
-		{
-			rev = grim->p + (revloc.y - 1) * grim->c + revloc.x;
-			grim->map[revloc.y - 1][revloc.x] = grim->path;
-		}
-		else if (*rev == 2)
-		{
-			rev = grim->p + revloc.y * grim->c + revloc.x - 1;
-			grim->map[revloc.y][revloc.x - 1] = grim->path;
-		}
-		else if (*rev == 3)
-		{
-			rev = grim->p + revloc.y * grim->c + revloc.x + 1;
-			grim->map[revloc.y][revloc.x + 1] = grim->path;
-		}
-		else if (*rev == 4)
-		{
-			rev = grim->p + (revloc.y + 1) * grim->c + revloc.x;
-			grim->map[revloc.y + 1][revloc.x] = grim->path;
-		}
+		grim->map[revloc.y][revloc.x] = grim->path;
 	}
 	ft_putstr(grim->m);
 }
