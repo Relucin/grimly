@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 18:27:42 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/16 13:42:19 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/16 16:12:48 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,8 @@ typedef struct		s_list
 
 typedef struct		s_point
 {
-	int				curx;
-	int				cury;
 	int				x;
 	int				y;
-	char			visited;
 }					t_point;
 
 typedef struct		s_grim
@@ -49,8 +46,8 @@ typedef struct		s_grim
 	char			**map;
 	t_point			start;
 	t_point			stop;
-	t_point			*p;
-	t_point			**points;
+	char			*p;
+	// char			**points;
 }					t_grim;
 
 t_list				*init(void);

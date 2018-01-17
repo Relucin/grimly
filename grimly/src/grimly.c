@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 09:49:57 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/16 13:42:21 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/16 17:32:13 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,18 +25,18 @@
 ** ft_printf("%d %d %d\n", line, grim->points[2][2].x, grim->points[2][2].y);
 */
 
-void	set_points(t_grim *grim)
-{
-	int	loc;
-
-	loc = 0;
-	while (loc < grim->l * grim->c)
-	{
-		grim->p[loc].x = -1;
-		grim->p[loc].y = -1;
-		grim->p[loc++].visited = -1;
-	}
-}
+// void	set_points(t_grim *grim)
+// {
+// 	int	loc;
+//
+// 	loc = 0;
+// 	while (loc < grim->l * grim->c)
+// 	{
+// 		grim->p[loc].x = -1;
+// 		grim->p[loc].y = -1;
+// 		grim->p[loc++].visited = -1;
+// 	}
+// }
 
 void	build_map(t_grim *grim)
 {
@@ -44,17 +44,14 @@ void	build_map(t_grim *grim)
 	char	*loc;
 
 	line = 0;
-	grim->p = malloc(sizeof(t_point) * grim->l * grim->c);
-	grim->points = malloc(sizeof(t_point *) * grim->l);
+	grim->p = malloc(sizeof(char) * grim->l * grim->c);
 	grim->map = malloc(sizeof(char *) * grim->l);
-	set_points(grim);
+	ft_memset(grim->p, -1, sizeof(char) * grim->l * grim->c);
 	while (line < grim->l)
 	{
 		if (grim->m[line * (grim->c + 1) + grim->c] != '\n')
 			exit(0);
-		grim->m[line * (grim->c + 1) + grim->c] = '\0';
 		grim->map[line] = grim->m + (line * (grim->c + 1));
-		grim->points[line] = grim->p + (line * grim->c);
 		if ((loc = ft_strchr(grim->map[line], grim->enter)))
 		{
 			grim->start.x = (int)(loc - grim->map[line]);
@@ -103,88 +100,98 @@ void	parse_map(t_grim *grim, int fd)
 
 void	print_map(t_grim *grim)
 {
-	t_point	rev;
+	char	*rev;
+	t_point	revloc;
 	int		loc;
 
 	loc = 0;
-	rev = grim->points[grim->stop.y][grim->stop.x];
+	rev = grim->p + grim->stop.y * grim->c + grim->stop.x;
 	while (1)
 	{
-		if ((rev.x == grim->start.x && rev.y == grim->start.y) || rev.x == -1)
+		revloc.x = (size_t)(rev - grim->p) % grim->c;
+		revloc.y = (size_t)(rev - grim->p) / grim->c;
+		if (!*rev || *rev == -1)
 			break ;
-		grim->map[rev.y][rev.x] = grim->path;
-		rev = grim->points[rev.y][rev.x];
+		else if (*rev == 1)
+		{
+			rev = grim->p + (revloc.y - 1) * grim->c + revloc.x;
+			grim->map[revloc.y - 1][revloc.x] = grim->path;
+		}
+		else if (*rev == 2)
+		{
+			rev = grim->p + revloc.y * grim->c + revloc.x - 1;
+			grim->map[revloc.y][revloc.x - 1] = grim->path;
+		}
+		else if (*rev == 3)
+		{
+			rev = grim->p + revloc.y * grim->c + revloc.x + 1;
+			grim->map[revloc.y][revloc.x + 1] = grim->path;
+		}
+		else if (*rev == 4)
+		{
+			rev = grim->p + (revloc.y + 1) * grim->c + revloc.x;
+			grim->map[revloc.y + 1][revloc.x] = grim->path;
+		}
 	}
-	while (loc < grim->l)
-	{
-		ft_putstr(grim->map[loc++]);
-		ft_putchar('\n');
-	}
+	ft_putstr(grim->m);
 }
 
 void	grimly(t_grim *grim)
 {
 	t_list	*queue;
-	t_point	*cur;
+	char	*cur;
+	int		count;
+	t_point	curloc;
 
 	queue = init();
-	enqueue(queue, grim->points[grim->start.y] + grim->start.x);
-	grim->points[grim->start.y][grim->start.x].visited = 1;
-	grim->points[grim->start.y][grim->start.x].curx = grim->start.x;
-	grim->points[grim->start.y][grim->start.x].cury = grim->start.y;
-	while (queue->first && grim->points[grim->stop.y][grim->stop.x].visited == -1)
+	count = 1;
+	enqueue(queue, grim->p + grim->start.x + grim->c * grim->start.y);
+	grim->p[grim->start.x + grim->c * grim->start.y] = 0;
+	while (queue->first && grim->p[grim->stop.x + grim->c * grim->stop.y] == -1)
 	{
 		cur = dequeue(queue);
-		if (cur->cury - 1 > 0 &&
-			(grim->map[cur->cury - 1][cur->curx] == grim->empty ||
-			grim->map[cur->cury - 1][cur->curx] == grim->end) &&
-			grim->points[cur->cury - 1][cur->curx].visited == -1)
+		--count;
+		curloc.x = (size_t)(cur - grim->p) % grim->c;
+		curloc.y = (size_t)(cur - grim->p) / grim->c;
+		if (curloc.y - 1 >= 0 &&
+			(grim->map[curloc.y - 1][curloc.x] == grim->empty ||
+			grim->map[curloc.y - 1][curloc.x] == grim->end) &&
+			grim->p[grim->c * (curloc.y - 1) + curloc.x] == -1)
 		{
-			grim->points[cur->cury - 1][cur->curx].curx = cur->curx;
-			grim->points[cur->cury - 1][cur->curx].cury = cur->cury - 1;
-			grim->points[cur->cury - 1][cur->curx].x = cur->curx;
-			grim->points[cur->cury - 1][cur->curx].y = cur->cury;
-			grim->points[cur->cury - 1][cur->curx].visited = 1;
-			enqueue(queue, grim->points[cur->cury - 1] + cur->curx);
+			grim->p[grim->c * (curloc.y - 1) + curloc.x] = 4;
+			enqueue(queue, grim->p + grim->c * (curloc.y - 1) + curloc.x);
+			++count;
 		}
-		if (cur->curx - 1 > 0 &&
-			(grim->map[cur->cury][cur->curx - 1] == grim->empty ||
-			grim->map[cur->cury][cur->curx - 1] == grim->end) &&
-			grim->points[cur->cury][cur->curx - 1].visited == -1)
+		if (curloc.x - 1 >= 0 &&
+			(grim->map[curloc.y][curloc.x - 1] == grim->empty ||
+			grim->map[curloc.y][curloc.x - 1] == grim->end) &&
+			grim->p[grim->c * curloc.y + curloc.x - 1] == -1)
 		{
-			grim->points[cur->cury][cur->curx - 1].curx = cur->curx - 1;
-			grim->points[cur->cury][cur->curx - 1].cury = cur->cury;
-			grim->points[cur->cury][cur->curx - 1].x = cur->curx;
-			grim->points[cur->cury][cur->curx - 1].y = cur->cury;
-			grim->points[cur->cury][cur->curx - 1].visited = 1;
-			enqueue(queue, grim->points[cur->cury] + cur->curx - 1);
+			grim->p[grim->c * curloc.y + curloc.x - 1] = 3;
+			enqueue(queue, grim->p + grim->c * curloc.y + curloc.x - 1);
+			++count;
 		}
-		if (cur->curx + 1 < grim->c &&
-			(grim->map[cur->cury][cur->curx + 1] == grim->empty ||
-			grim->map[cur->cury][cur->curx + 1] == grim->end) &&
-			grim->points[cur->cury][cur->curx + 1].visited == -1)
+		if (curloc.x + 1 < grim->c &&
+			(grim->map[curloc.y][curloc.x + 1] == grim->empty ||
+			grim->map[curloc.y][curloc.x + 1] == grim->end) &&
+			grim->p[grim->c * curloc.y + curloc.x + 1] == -1)
 		{
-			grim->points[cur->cury][cur->curx + 1].curx = cur->curx + 1;
-			grim->points[cur->cury][cur->curx + 1].cury = cur->cury;
-			grim->points[cur->cury][cur->curx + 1].x = cur->curx;
-			grim->points[cur->cury][cur->curx + 1].y = cur->cury;
-			grim->points[cur->cury][cur->curx + 1].visited = 1;
-			enqueue(queue, grim->points[cur->cury] + cur->curx + 1);
+			grim->p[grim->c * curloc.y + curloc.x + 1] = 2;
+			enqueue(queue, grim->p + grim->c * curloc.y + curloc.x + 1);
+			++count;
 		}
-		if (cur->cury + 1 < grim->c &&
-			(grim->map[cur->cury + 1][cur->curx] == grim->empty ||
-			grim->map[cur->cury + 1][cur->curx] == grim->end) &&
-			grim->points[cur->cury + 1][cur->curx].visited == -1)
+		if (curloc.y + 1 < grim->c &&
+			(grim->map[curloc.y + 1][curloc.x] == grim->empty ||
+			grim->map[curloc.y + 1][curloc.x] == grim->end) &&
+			grim->p[grim->c * (curloc.y + 1) + curloc.x] == -1)
 		{
-			grim->points[cur->cury + 1][cur->curx].curx = cur->curx;
-			grim->points[cur->cury + 1][cur->curx].cury = cur->cury + 1;
-			grim->points[cur->cury + 1][cur->curx].x = cur->curx;
-			grim->points[cur->cury + 1][cur->curx].y = cur->cury;
-			grim->points[cur->cury + 1][cur->curx].visited = 1;
-			enqueue(queue, grim->points[cur->cury + 1] + cur->curx);
+			grim->p[grim->c * (curloc.y + 1) + curloc.x] = 1;
+			enqueue(queue, grim->p + grim->c * (curloc.y + 1) + curloc.x);
+			++count;
 		}
 	}
-	cur = grim->points[grim->stop.y] + grim->stop.x;
+	ft_printf("%d\n", grim->p[grim->stop.x + grim->c * grim->stop.y]);
+	// cur = grim->points[grim->stop.y] + grim->stop.x;
 	print_map(grim);
 }
 
