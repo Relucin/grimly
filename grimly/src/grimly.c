@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 09:49:57 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/16 17:42:22 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/16 18:09:44 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,19 +24,6 @@
 ** TODO Consider multiple stops.
 ** ft_printf("%d %d %d\n", line, grim->points[2][2].x, grim->points[2][2].y);
 */
-
-// void	set_points(t_grim *grim)
-// {
-// 	int	loc;
-//
-// 	loc = 0;
-// 	while (loc < grim->l * grim->c)
-// 	{
-// 		grim->p[loc].x = -1;
-// 		grim->p[loc].y = -1;
-// 		grim->p[loc++].visited = -1;
-// 	}
-// }
 
 void	build_map(t_grim *grim)
 {
@@ -142,17 +129,14 @@ void	grimly(t_grim *grim)
 {
 	t_list	*queue;
 	char	*cur;
-	int		count;
 	t_point	curloc;
 
 	queue = init();
-	count = 1;
 	enqueue(queue, grim->p + grim->start.x + grim->c * grim->start.y);
 	grim->p[grim->start.x + grim->c * grim->start.y] = 0;
 	while (queue->first && grim->p[grim->stop.x + grim->c * grim->stop.y] == -1)
 	{
 		cur = dequeue(queue);
-		--count;
 		curloc.x = (size_t)(cur - grim->p) % grim->c;
 		curloc.y = (size_t)(cur - grim->p) / grim->c;
 		if (curloc.y - 1 >= 0 &&
@@ -162,7 +146,6 @@ void	grimly(t_grim *grim)
 		{
 			grim->p[grim->c * (curloc.y - 1) + curloc.x] = 4;
 			enqueue(queue, grim->p + grim->c * (curloc.y - 1) + curloc.x);
-			++count;
 		}
 		if (curloc.x - 1 >= 0 &&
 			(grim->map[curloc.y][curloc.x - 1] == grim->empty ||
@@ -171,7 +154,6 @@ void	grimly(t_grim *grim)
 		{
 			grim->p[grim->c * curloc.y + curloc.x - 1] = 3;
 			enqueue(queue, grim->p + grim->c * curloc.y + curloc.x - 1);
-			++count;
 		}
 		if (curloc.x + 1 < grim->c &&
 			(grim->map[curloc.y][curloc.x + 1] == grim->empty ||
@@ -180,7 +162,6 @@ void	grimly(t_grim *grim)
 		{
 			grim->p[grim->c * curloc.y + curloc.x + 1] = 2;
 			enqueue(queue, grim->p + grim->c * curloc.y + curloc.x + 1);
-			++count;
 		}
 		if (curloc.y + 1 < grim->c &&
 			(grim->map[curloc.y + 1][curloc.x] == grim->empty ||
@@ -189,11 +170,8 @@ void	grimly(t_grim *grim)
 		{
 			grim->p[grim->c * (curloc.y + 1) + curloc.x] = 1;
 			enqueue(queue, grim->p + grim->c * (curloc.y + 1) + curloc.x);
-			++count;
 		}
 	}
-	ft_printf("%d\n", grim->p[grim->stop.x + grim->c * grim->stop.y]);
-	// cur = grim->points[grim->stop.y] + grim->stop.x;
 	print_map(grim);
 }
 
