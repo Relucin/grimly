@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 09:49:57 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/16 21:55:28 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/17 18:24:36 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,7 @@
 #include <grimly.h>
 
 /*
-** TODO Consider multiple stops.
-** ft_printf("%d %d %d\n", line, grim->points[2][2].x, grim->points[2][2].y);
+** TODO Think about removing stop
 */
 
 void	verify_map(t_grim *grim)
@@ -30,27 +29,23 @@ void	verify_map(t_grim *grim)
 	int		mapsize;
 	int		line;
 
-	mapsize = grim->l * (grim->c + 1) - 1;
+	mapsize = grim->l * (grim->c + 1);
 	line = grim->l - 1;
-	while (mapsize >= 0)
+	while (--mapsize >= 0)
 	{
-		if (grim->m[mapsize] == grim->enter)
+		if (grim->m[mapsize] == grim->enter && grim->start.x == -1)
 		{
 			grim->start.x = mapsize % (grim->c + 1);
 			grim->start.y = mapsize / (grim->c + 1);
 		}
 		else if (grim->m[mapsize] == grim->end)
-		{
-			grim->stop.x = mapsize % (grim->c + 1);
-			grim->stop.y = mapsize / (grim->c + 1);
-		}
+			grim->stop = 1;
 		else if (mapsize == line * (grim->c + 1) + grim->c &&
 				grim->m[line * (grim->c + 1) + grim->c] == '\n')
 			--line;
 		else if (grim->m[mapsize] != grim->empty &&
 				grim->m[mapsize] != grim->full)
 			exit(0);
-		--mapsize;
 	}
 }
 
@@ -62,7 +57,11 @@ void	build_map(t_grim *grim)
 	grim->p = malloc(sizeof(char) * grim->l * grim->c);
 	grim->map = malloc(sizeof(char *) * grim->l);
 	ft_memset(grim->p, -1, sizeof(char) * grim->l * grim->c);
+	grim->start.x = -1;
+	grim->stop = 0;
 	verify_map(grim);
+	if (!grim->stop)
+		exit(0);
 	while (line < grim->l)
 	{
 		grim->map[line] = grim->m + (line * (grim->c + 1));
@@ -72,6 +71,7 @@ void	build_map(t_grim *grim)
 
 /*
 ** TODO Deal with read errors.
+** TODO Deal with invalid characters for LINE & COL
 */
 
 void	parse_map(t_grim *grim, int fd)
@@ -103,14 +103,14 @@ void	parse_map(t_grim *grim, int fd)
 	build_map(grim);
 }
 
-void	print_map(t_grim *grim)
+void	print_map(t_grim *grim, t_point *end)
 {
 	char	*rev;
 	t_point	revloc;
 	int		loc;
 
 	loc = 0;
-	rev = grim->p + grim->stop.y * grim->c + grim->stop.x;
+	rev = grim->p + end->y * grim->c + end->x;
 	while (1)
 	{
 		revloc.x = (size_t)(rev - grim->p) % grim->c;
@@ -130,80 +130,84 @@ void	print_map(t_grim *grim)
 	ft_putstr(grim->m);
 }
 
-void	grimly(t_grim *grim)
+int		is_link(t_grim *grim, t_point *loc, char dir, t_list *queue)
 {
-	t_list	*queue;
-	char	*cur;
-	t_point	curloc;
+	if ((grim->map[loc->y][loc->x] == grim->empty ||
+		grim->map[loc->y][loc->x] == grim->end) &&
+		grim->p[grim->c * loc->y + loc->x] == -1)
+	{
+		grim->p[grim->c * loc->y + loc->x] = dir;
+		enqueue(queue, grim->p + grim->c * loc->y + loc->x);
+		return (1);
+	}
+	return (0);
+}
 
-	queue = init();
+/*
+** TODO Figure out if loc needs to be initalized
+*/
+
+void	grimly(t_grim *grim, t_list *queue)
+{
+	char	*cur;
+	t_point	loc;
+
 	enqueue(queue, grim->p + grim->start.x + grim->c * grim->start.y);
 	grim->p[grim->start.x + grim->c * grim->start.y] = 0;
-	while (queue->first && grim->p[grim->stop.x + grim->c * grim->stop.y] == -1)
+	while (queue->first)
 	{
 		cur = dequeue(queue);
-		curloc.x = (size_t)(cur - grim->p) % grim->c;
-		curloc.y = (size_t)(cur - grim->p) / grim->c;
-		if (curloc.y - 1 >= 0 &&
-			(grim->map[curloc.y - 1][curloc.x] == grim->empty ||
-			grim->map[curloc.y - 1][curloc.x] == grim->end) &&
-			grim->p[grim->c * (curloc.y - 1) + curloc.x] == -1)
-		{
-			grim->p[grim->c * (curloc.y - 1) + curloc.x] = 4;
-			enqueue(queue, grim->p + grim->c * (curloc.y - 1) + curloc.x);
-		}
-		if (curloc.x - 1 >= 0 &&
-			(grim->map[curloc.y][curloc.x - 1] == grim->empty ||
-			grim->map[curloc.y][curloc.x - 1] == grim->end) &&
-			grim->p[grim->c * curloc.y + curloc.x - 1] == -1)
-		{
-			grim->p[grim->c * curloc.y + curloc.x - 1] = 3;
-			enqueue(queue, grim->p + grim->c * curloc.y + curloc.x - 1);
-		}
-		if (curloc.x + 1 < grim->c &&
-			(grim->map[curloc.y][curloc.x + 1] == grim->empty ||
-			grim->map[curloc.y][curloc.x + 1] == grim->end) &&
-			grim->p[grim->c * curloc.y + curloc.x + 1] == -1)
-		{
-			grim->p[grim->c * curloc.y + curloc.x + 1] = 2;
-			enqueue(queue, grim->p + grim->c * curloc.y + curloc.x + 1);
-		}
-		if (curloc.y + 1 < grim->c &&
-			(grim->map[curloc.y + 1][curloc.x] == grim->empty ||
-			grim->map[curloc.y + 1][curloc.x] == grim->end) &&
-			grim->p[grim->c * (curloc.y + 1) + curloc.x] == -1)
-		{
-			grim->p[grim->c * (curloc.y + 1) + curloc.x] = 1;
-			enqueue(queue, grim->p + grim->c * (curloc.y + 1) + curloc.x);
-		}
+		loc.x = (size_t)(cur - grim->p) % grim->c;
+		loc.y = (size_t)(cur - grim->p) / grim->c;
+		if (grim->map[loc.y][loc.x] == grim->end)
+			break ;
+		if (--loc.y >= 0 && is_link(grim, &loc, 4, queue))
+			;
+		++loc.y;
+		if (--loc.x >= 0 && is_link(grim, &loc, 3, queue))
+			;
+		loc.x += 2;
+		if (loc.x < grim->c && is_link(grim, &loc, 2, queue))
+			;
+		--loc.x;
+		if (++loc.y < grim->c && is_link(grim, &loc, 1, queue))
+			;
 	}
-	print_map(grim);
+	print_map(grim, &loc);
 }
 
 /*
 ** TODO Deal with multiple files
+** TODO Clean up pointers in grim
 */
 
 int		main(int argc, char **argv)
 {
+	t_list	*queue;
 	t_grim	grim;
+	int		file;
 	int		fd;
 
+	queue = init();
 	if (argc == 1)
 	{
 		parse_map(&grim, STDIN_FILENO);
-		grimly(&grim);
+		grimly(&grim, queue);
 	}
-	else if (argc == 2)
+	else
 	{
-		fd = open(argv[1], O_RDONLY);
-		if (fd)
+		file = 0;
+		while (++file < argc)
 		{
-			parse_map(&grim, fd);
-			grimly(&grim);
-			close(fd);
+			fd = open(argv[file], O_RDONLY);
+			if (fd)
+			{
+				parse_map(&grim, fd);
+				grimly(&grim, queue);
+				close(fd);
+			}
+			else
+				ft_putstr("MAP ERROR\n");
 		}
-		else
-			ft_putstr("MAP ERROR\n");
 	}
 }

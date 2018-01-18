@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 18:27:42 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/16 20:07:40 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/17 16:21:34 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ typedef struct		s_grim
 	char			*m;
 	char			**map;
 	t_point			start;
-	t_point			stop;
+	char			stop;
 	char			*p;
 }					t_grim;
 
