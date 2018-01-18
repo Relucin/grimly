@@ -1,8 +1,10 @@
 INCLUDES	+= grimly queue solver main
+INCLUDES	+= ft_atoi ft_isdigit ft_memset
+INCLUDES	+= ft_strchr ft_strlen
 INCLUDES	:= $(addprefix src/, $(INCLUDES))
 INCLUDES	:= $(addsuffix .o, $(INCLUDES))
 CC			:= gcc
-FLAGS		+= -Wall -Wextra -Werror -Ilibft/includes/ -Iincludes/
+FLAGS		+= -Wall -Wextra -Werror -Iincludes/
 FLAGS		+= -g
 NAME		:= grimly
 
@@ -10,24 +12,19 @@ NAME		:= grimly
 
 all: $(NAME)
 
-$(NAME): $(INCLUDES) libft/libft.a
+$(NAME): $(INCLUDES)
 	@echo 'Building $(NAME)'
 	@$(CC) $(FLAGS) $^ -o $@
 
 %.o: %.c
 	@$(CC) $(FLAGS) -c $^ -o $@
 
-libft/libft.a:
-	@make -C libft/
-
 clean:
 	@echo 'Removing $(NAME)--object files'
-	@make -C libft/ clean
 	@rm -rf $(INCLUDES)
 
 fclean: clean
 	@echo 'Removing $(NAME)'
-	@make -C libft/ fclean
 	@rm -rf $(NAME)
 
 re: fclean all
