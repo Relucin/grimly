@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/17 19:04:33 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/18 10:21:18 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/18 13:10:34 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,15 @@
 
 void	print_lastline(t_grim *grim, int loc)
 {
+	ft_putnbr_fd(grim->l, STDOUT_FILENO);
+	write(1, "x", 1);
+	ft_putnbr_fd(grim->c, STDOUT_FILENO);
+	write(1, &(grim->full), 1);
+	write(1, &(grim->empty), 1);
+	write(1, &(grim->path), 1);
+	write(1, &(grim->enter), 1);
+	write(1, &(grim->end), 1);
+	write(1, "\n", 1);
 	write(STDOUT_FILENO, grim->m, ft_strlen(grim->m));
 	write(STDOUT_FILENO, "RESULT IN ", 10);
 	ft_putnbr_fd(loc, STDOUT_FILENO);
