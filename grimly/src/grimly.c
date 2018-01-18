@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 09:49:57 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/17 19:08:38 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/17 21:04:18 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,10 @@ void	verify_map(t_grim *grim)
 			--line;
 		else if (grim->m[mapsize] != grim->empty &&
 				grim->m[mapsize] != grim->full)
-			exit(0);
+		{
+			grim->stop = 0;
+			return ;
+		}
 	}
 }
 
@@ -52,12 +55,15 @@ void	build_map(t_grim *grim)
 	line = 0;
 	grim->p = malloc(sizeof(char) * grim->l * grim->c);
 	grim->map = malloc(sizeof(char *) * grim->l);
-	ft_memset(grim->p, -1, sizeof(char) * grim->l * grim->c);
 	grim->start.x = -1;
-	grim->stop = 0;
 	verify_map(grim);
-	if (!grim->stop)
-		exit(0);
+	if (!grim->stop || grim->start.x == -1)
+	{
+		free(grim->p);
+		free(grim->map);
+		return ;
+	}
+	ft_memset(grim->p, -1, sizeof(char) * grim->l * grim->c);
 	while (line < grim->l)
 	{
 		grim->map[line] = grim->m + (line * (grim->c + 1));
@@ -66,8 +72,9 @@ void	build_map(t_grim *grim)
 }
 
 /*
-** TODO Deal with read errors.
+** TODO Deal with read errors.??? Maybe not
 ** TODO Deal with invalid characters for LINE & COL
+** TODO Check if #chars in str is exceeded while looking for \n
 */
 
 void	parse_map(t_grim *grim, int fd)
@@ -87,28 +94,43 @@ void	parse_map(t_grim *grim, int fd)
 	grim->full = *(--loc);
 	*loc = '\0';
 	if (!(loc = ft_strchr(str, 'x')))
-		exit(0);
+		return ;
 	*(loc++) = '\0';
 	grim->c = ft_atoi(loc);
 	if (!((grim->l = ft_atoi(str)) * grim->c))
-		exit(0);
+		return ;
 	grim->m = malloc(grim->l * (grim->c + 1) + 1);
 	if (read(fd, grim->m, grim->l * (grim->c + 1)) != grim->l * (grim->c + 1))
-		exit(0);
+	{
+		free(grim->m);
+		return ;
+	}
 	grim->m[grim->l * (grim->c + 1)] = '\0';
 	build_map(grim);
 }
 
 void	setup_grim(t_grim *grim, t_list *queue, int fd)
 {
+	t_point	loc;
+
+	grim->stop = 0;
 	parse_map(grim, fd);
-	grimly(grim, queue);
-	while (queue->first)
-		dequeue(queue);
+	if (grim->stop)
+	{
+		ft_memset(&loc, 0, sizeof(t_point));
+		grimly(grim, queue, &loc);
+		while (queue->first)
+			dequeue(queue);
+		free(grim->m);
+		free(grim->map);
+		free(grim->p);
+	}
+	else
+		write(2, "MAP ERROR\n", 10);
 }
 
 /*
-** TODO Clean up pointers in grim
+** TODO Verify that mallocs are cleaned up
 */
 
 int		main(int argc, char **argv)
@@ -133,7 +155,7 @@ int		main(int argc, char **argv)
 				close(fd);
 			}
 			else
-				ft_putstr("MAP ERROR\n");
+				write(2, "MAP ERROR\n", 10);
 		}
 	}
 	free(queue);

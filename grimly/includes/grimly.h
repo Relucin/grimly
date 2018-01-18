@@ -6,13 +6,12 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 18:27:42 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/17 19:06:52 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/17 21:03:06 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GRIMLY_H
 # define GRIMLY_H
-
 # include <stddef.h>
 
 typedef struct		s_node
@@ -52,5 +51,5 @@ typedef struct		s_grim
 t_list				*init(void);
 void				enqueue(t_list *queue, void *content);
 void				*dequeue(t_list *queue);
-void				grimly(t_grim *grim, t_list *queue);
+void				grimly(t_grim *grim, t_list *queue, t_point *loc);
 #endif
