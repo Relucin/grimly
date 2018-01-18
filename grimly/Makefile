@@ -1,4 +1,4 @@
-INCLUDES	+= grimly queue
+INCLUDES	+= grimly queue solver
 INCLUDES	:= $(addprefix src/, $(INCLUDES))
 INCLUDES	:= $(addsuffix .o, $(INCLUDES))
 CC			:= gcc
