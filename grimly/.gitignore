@@ -11,3 +11,5 @@
 grimly
 *.pdf
 test*
+*.map
+gen
