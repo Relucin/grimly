@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 18:27:42 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/17 23:25:19 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/18 10:16:20 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,4 +58,5 @@ char				*ft_strchr(const char *s, int c);
 void				*ft_memset(void *b, int c, size_t len);
 int					ft_atoi(const char *str);
 int					ft_isdigit(int c);
+void				ft_putnbr_fd(int n, int fd);
 #endif

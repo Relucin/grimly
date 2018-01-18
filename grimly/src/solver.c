@@ -6,13 +6,21 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/17 19:04:33 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/17 23:25:43 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/18 10:21:18 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <grimly.h>
 #include <unistd.h>
 #include <stdlib.h>
+
+void	print_lastline(t_grim *grim, int loc)
+{
+	write(STDOUT_FILENO, grim->m, ft_strlen(grim->m));
+	write(STDOUT_FILENO, "RESULT IN ", 10);
+	ft_putnbr_fd(loc, STDOUT_FILENO);
+	write(STDOUT_FILENO, " STEPS!\n", 8);
+}
 
 void	print_map(t_grim *grim, t_point *end)
 {
@@ -37,8 +45,9 @@ void	print_map(t_grim *grim, t_point *end)
 		if (!*rev || *rev == -1)
 			break ;
 		grim->map[revloc.y][revloc.x] = grim->path;
+		++loc;
 	}
-	write(1, grim->m, ft_strlen(grim->m));
+	print_lastline(grim, loc);
 }
 
 void	is_link(t_grim *grim, t_point *loc, char dir, t_list *queue)
@@ -78,7 +87,7 @@ void	grimly(t_grim *grim, t_list *queue, t_point *loc)
 		if (++loc->y < grim->l)
 			is_link(grim, loc, 1, queue);
 	}
-	write(2, "MAP ERROR\n", 10);
+	write(STDERR_FILENO, "MAP ERROR\n", 10);
 }
 
 void	setup_grim(t_grim *grim, t_list *queue, int fd)
@@ -99,5 +108,5 @@ void	setup_grim(t_grim *grim, t_list *queue, int fd)
 		free(grim->p);
 	}
 	else
-		write(2, "MAP ERROR\n", 10);
+		write(STDERR_FILENO, "MAP ERROR\n", 10);
 }

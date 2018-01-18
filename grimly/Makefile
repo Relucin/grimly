@@ -1,4 +1,4 @@
-INCLUDES	+= grimly queue solver main
+INCLUDES	+= grimly queue solver main ft_putnbr_fd
 INCLUDES	+= ft_atoi ft_isdigit ft_memset
 INCLUDES	+= ft_strchr ft_strlen
 INCLUDES	:= $(addprefix src/, $(INCLUDES))

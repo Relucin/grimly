@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/17 23:05:16 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/17 23:06:36 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/18 10:11:59 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int		main(int argc, char **argv)
 				close(fd);
 			}
 			else
-				write(2, "MAP ERROR\n", 10);
+				write(STDERR_FILENO, "MAP ERROR\n", 10);
 		}
 	}
 	free(queue);
