@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 09:49:57 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/17 23:25:30 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/18 10:52:04 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,12 @@ int		first_line(t_grim *grim, int fd, char *str)
 	grim->path = *(--str);
 	grim->empty = *(--str);
 	grim->full = *(--str);
+	if (grim->end == grim->enter || grim->end == grim->path ||
+		grim->end == grim->empty || grim->end == grim->full ||
+		grim->enter == grim->path || grim->enter == grim->empty ||
+		grim->enter == grim->full || grim->path == grim->empty ||
+		grim->path == grim->full || grim->empty == grim->full)
+		return (0);
 	*str = '\0';
 	return (1);
 }
