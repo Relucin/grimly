@@ -6,13 +6,15 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/17 19:04:33 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/17 21:13:06 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/17 22:41:51 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <grimly.h>
 #include <ftstdio.h>
 #include <ftstring.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 void	print_map(t_grim *grim, t_point *end)
 {
@@ -52,23 +54,20 @@ void	is_link(t_grim *grim, t_point *loc, char dir, t_list *queue)
 	}
 }
 
-/*
-** TODO Figure out if loc needs to be initalized
-*/
-
 void	grimly(t_grim *grim, t_list *queue, t_point *loc)
 {
 	char	*cur;
 
-	enqueue(queue, grim->p + grim->start.x + grim->c * grim->start.y);
-	grim->p[grim->start.x + grim->c * grim->start.y] = 0;
 	while (queue->first)
 	{
 		cur = dequeue(queue);
 		loc->x = (size_t)(cur - grim->p) % grim->c;
 		loc->y = (size_t)(cur - grim->p) / grim->c;
 		if (grim->map[loc->y][loc->x] == grim->end)
-			break ;
+		{
+			print_map(grim, loc);
+			return ;
+		}
 		if (--loc->y >= 0)
 			is_link(grim, loc, 4, queue);
 		++loc->y;
@@ -81,5 +80,26 @@ void	grimly(t_grim *grim, t_list *queue, t_point *loc)
 		if (++loc->y < grim->l)
 			is_link(grim, loc, 1, queue);
 	}
-	print_map(grim, loc);
+	write(2, "MAP ERROR\n", 10);
+}
+
+void	setup_grim(t_grim *grim, t_list *queue, int fd)
+{
+	t_point	loc;
+
+	grim->stop = 0;
+	parse_map(grim, fd);
+	if (grim->stop)
+	{
+		enqueue(queue, grim->p + grim->start.x + grim->c * grim->start.y);
+		grim->p[grim->start.x + grim->c * grim->start.y] = 0;
+		grimly(grim, queue, &loc);
+		while (queue->first)
+			dequeue(queue);
+		free(grim->m);
+		free(grim->map);
+		free(grim->p);
+	}
+	else
+		write(2, "MAP ERROR\n", 10);
 }
