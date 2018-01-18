@@ -6,7 +6,7 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 18:27:42 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/17 22:41:21 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/17 23:25:19 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,4 +53,9 @@ void				enqueue(t_list *queue, void *content);
 void				*dequeue(t_list *queue);
 void				parse_map(t_grim *grim, int fd);
 void				setup_grim(t_grim *grim, t_list *queue, int fd);
+size_t				ft_strlen(const char *s);
+char				*ft_strchr(const char *s, int c);
+void				*ft_memset(void *b, int c, size_t len);
+int					ft_atoi(const char *str);
+int					ft_isdigit(int c);
 #endif

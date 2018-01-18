@@ -6,13 +6,11 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/17 19:04:33 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/17 22:41:51 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/17 23:25:43 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <grimly.h>
-#include <ftstdio.h>
-#include <ftstring.h>
 #include <unistd.h>
 #include <stdlib.h>
 
@@ -40,7 +38,7 @@ void	print_map(t_grim *grim, t_point *end)
 			break ;
 		grim->map[revloc.y][revloc.x] = grim->path;
 	}
-	ft_putstr(grim->m);
+	write(1, grim->m, ft_strlen(grim->m));
 }
 
 void	is_link(t_grim *grim, t_point *loc, char dir, t_list *queue)

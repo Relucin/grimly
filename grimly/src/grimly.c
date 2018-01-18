@@ -6,17 +6,14 @@
 /*   By: bmontoya <bmontoya@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/15 09:49:57 by bmontoya          #+#    #+#             */
-/*   Updated: 2018/01/17 23:12:44 by bmontoya         ###   ########.fr       */
+/*   Updated: 2018/01/17 23:25:30 by bmontoya         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <sys/types.h>
 #include <sys/uio.h>
-#include <ftstring.h>
-#include <ftstdlib.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <ftstdio.h>
 #include <grimly.h>
 
 void	verify_map(t_grim *grim)
